@@ -3,6 +3,8 @@ package com.khush.notifiq.notification;
 import com.khush.notifiq.common.ResourceNotFoundException;
 import com.khush.notifiq.notification.dto.NotificationRequest;
 import com.khush.notifiq.notification.dto.NotificationResponse;
+import com.khush.notifiq.preference.UserPreference;
+import com.khush.notifiq.preference.UserPreferenceRepository;
 import com.khush.notifiq.user.User;
 import com.khush.notifiq.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import java.util.Optional;
 public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final UserPreferenceRepository userPreferenceRepository;
 
     public NotificationResponse createNotification(NotificationRequest request){
         Optional<Notification> existing =notificationRepository.findByIdempotencyKey(request.getIdempotencyKey());
@@ -24,9 +27,24 @@ public class NotificationService {
         }
         User user=userRepository.findById(request.getUserId())
                 .orElseThrow(()->new ResourceNotFoundException("User not found with id "+request.getUserId()));
+
+        NotificationStatus status = NotificationStatus.QUEUED;
+        Optional<UserPreference> preferenceOptional = userPreferenceRepository.findByUserId(user.getId());
+        if(preferenceOptional.isPresent()){
+            UserPreference preference = preferenceOptional.get();
+            if(request.getChannel() == NotificationChannel.EMAIL && !preference.isEmailEnabled()){
+                status = NotificationStatus.SKIPPED_BY_PREFERENCE;
+            } else if (request.getChannel() == NotificationChannel.IN_APP && !preference.isInAppEnabled()) {
+                status = NotificationStatus.SKIPPED_BY_PREFERENCE;
+            } else if (request.getChannel() == NotificationChannel.WEBHOOK && !preference.isWebhookEnabled()) {
+                status = NotificationStatus.SKIPPED_BY_PREFERENCE;
+            }
+        }
+
+
         Notification notification= Notification.builder()
                 .user(user)
-                .status(NotificationStatus.QUEUED)
+                .status(status)
                 .type(request.getType())
                 .channel(request.getChannel())
                 .priority(request.getPriority())
