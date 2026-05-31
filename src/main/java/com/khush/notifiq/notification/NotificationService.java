@@ -1,6 +1,7 @@
 package com.khush.notifiq.notification;
 
 import com.khush.notifiq.common.ResourceNotFoundException;
+import com.khush.notifiq.notification.delivery.EmailNotificationSender;
 import com.khush.notifiq.notification.dto.NotificationRequest;
 import com.khush.notifiq.notification.dto.NotificationResponse;
 import com.khush.notifiq.preference.UserPreference;
@@ -10,6 +11,7 @@ import com.khush.notifiq.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +21,7 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
     private final UserPreferenceRepository userPreferenceRepository;
+    private final EmailNotificationSender emailNotificationSender;
 
     public NotificationResponse createNotification(NotificationRequest request){
         Optional<Notification> existing =notificationRepository.findByIdempotencyKey(request.getIdempotencyKey());
@@ -52,6 +55,25 @@ public class NotificationService {
                 .message(request.getMessage())
                 .idempotencyKey(request.getIdempotencyKey())
                 .build();
+
+        if (notification.getStatus() == NotificationStatus.QUEUED
+                && notification.getChannel() == NotificationChannel.EMAIL) {
+            try{
+                String subject = notification.getSubject()!=null
+                        ? notification.getSubject()
+                        : "NotifiQ Notification";
+                emailNotificationSender.sendEmail(
+                        user.getEmail(),
+                        subject,
+                        notification.getMessage()
+                );
+                notification.setStatus(NotificationStatus.SENT);
+                notification.setSentAt(LocalDateTime.now());
+            } catch(Exception ex){
+                notification.setStatus(NotificationStatus.FAILED);
+                notification.setLastError(ex.getMessage());
+            }
+        }
         Notification savedNotification = notificationRepository.save(notification);
         return mapToResponse(savedNotification);
     }
