@@ -23,4 +23,5 @@ public class NotificationResponse {
     private String idempotencyKey;
     private LocalDateTime createdAt;
     private LocalDateTime sentAt;
+    private LocalDateTime nextRetryAt;
 }
