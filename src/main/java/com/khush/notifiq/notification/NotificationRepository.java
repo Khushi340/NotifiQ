@@ -13,4 +13,8 @@ public interface NotificationRepository extends JpaRepository<Notification,Long>
             NotificationStatus status,
             LocalDateTime nextRetryAt
     );
+    List<Notification> findByUserIdAndChannelAndReadAtIsNull(
+            Long userId,
+            NotificationChannel channel
+    );
 }

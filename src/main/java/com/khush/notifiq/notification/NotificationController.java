@@ -28,4 +28,14 @@ public class NotificationController {
         return ResponseEntity.ok(responses);
     }
 
+    @PatchMapping("/{id}/read")
+    public ResponseEntity<NotificationResponse> markAsRead(@PathVariable Long id) {
+        return ResponseEntity.ok(notificationService.markAsRead(id));
+    }
+
+    @GetMapping("/user/{userId}/unread")
+    public ResponseEntity<List<NotificationResponse>> getUnreadNotifications(@PathVariable Long userId) {
+        return ResponseEntity.ok(notificationService.getUnreadNotifications(userId));
+    }
+
 }

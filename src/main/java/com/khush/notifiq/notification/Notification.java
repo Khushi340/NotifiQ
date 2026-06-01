@@ -50,6 +50,8 @@ public class Notification {
 
     private LocalDateTime sentAt;
 
+    private LocalDateTime readAt;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

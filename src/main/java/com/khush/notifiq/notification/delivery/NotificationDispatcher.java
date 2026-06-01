@@ -20,6 +20,9 @@ public class NotificationDispatcher {
         if (notification.getChannel() == NotificationChannel.EMAIL) {
             return sendEmail(notification);
         }
+        if (notification.getChannel() == NotificationChannel.IN_APP) {
+            return sendInApp(notification);
+        }
         return notification;
     }
 
@@ -44,6 +47,15 @@ public class NotificationDispatcher {
             notification.setStatus(NotificationStatus.FAILED);
             notification.setLastError(ex.getMessage());
         }
+
+        return notificationRepository.save(notification);
+    }
+
+    private Notification sendInApp(Notification notification) {
+        notification.setStatus(NotificationStatus.SENT);
+        notification.setSentAt(LocalDateTime.now());
+        notification.setLastError(null);
+        notification.setNextRetryAt(null);
 
         return notificationRepository.save(notification);
     }

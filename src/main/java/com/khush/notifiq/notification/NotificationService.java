@@ -1,5 +1,6 @@
 package com.khush.notifiq.notification;
 
+import com.khush.notifiq.common.BadRequestException;
 import com.khush.notifiq.common.ResourceNotFoundException;
 import com.khush.notifiq.notification.delivery.NotificationDispatcher;
 import com.khush.notifiq.notification.dto.NotificationRequest;
@@ -93,6 +94,33 @@ public class NotificationService {
                 .toList();
     }
 
+    public NotificationResponse markAsRead(Long notificationId){
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(()-> new ResourceNotFoundException(
+                        "Notification not found with id "+notificationId
+                ));
+        if(notification.getChannel() != NotificationChannel.IN_APP){
+            throw new BadRequestException("Only IN_APP notifications can be marked as read");
+        }
+
+        if (notification.getReadAt() == null) {
+            notification.setReadAt(LocalDateTime.now());
+            notification = notificationRepository.save(notification);
+        }
+
+        return mapToResponse(notification);
+    }
+
+    public List<NotificationResponse> getUnreadNotifications(Long userId){
+        userRepository.findById(userId)
+                .orElseThrow(()-> new ResourceNotFoundException("User not founnd with id "+ userId));
+        return notificationRepository
+                .findByUserIdAndChannelAndReadAtIsNull(userId,NotificationChannel.IN_APP)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
     private NotificationResponse mapToResponse(Notification notification){
         return NotificationResponse.builder()
                 .id(notification.getId())
@@ -107,6 +135,7 @@ public class NotificationService {
                 .createdAt(notification.getCreatedAt())
                 .sentAt(notification.getSentAt())
                 .nextRetryAt(notification.getNextRetryAt())
+                .readAt(notification.getReadAt())
                 .build();
     }
 
