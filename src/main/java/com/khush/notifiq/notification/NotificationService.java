@@ -5,6 +5,7 @@ import com.khush.notifiq.common.ResourceNotFoundException;
 import com.khush.notifiq.notification.delivery.NotificationDispatcher;
 import com.khush.notifiq.notification.dto.NotificationRequest;
 import com.khush.notifiq.notification.dto.NotificationResponse;
+import com.khush.notifiq.notification.dto.NotificationStatsResponse;
 import com.khush.notifiq.preference.UserPreference;
 import com.khush.notifiq.preference.UserPreferenceRepository;
 import com.khush.notifiq.user.User;
@@ -119,6 +120,18 @@ public class NotificationService {
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
+    }
+
+    public NotificationStatsResponse getNotificationStats(){
+        return NotificationStatsResponse.builder()
+                .totalNotifications(notificationRepository.count())
+                .sentNotifications(notificationRepository.countByStatus(NotificationStatus.SENT))
+                .queuedNotifications(notificationRepository.countByStatus(NotificationStatus.QUEUED))
+                .failedNotifications(notificationRepository.countByStatus(NotificationStatus.FAILED))
+                .unreadInAppNotifications(
+                        notificationRepository.countByChannelAndReadAtIsNull(NotificationChannel.IN_APP)
+                )
+                .build();
     }
 
     private NotificationResponse mapToResponse(Notification notification){

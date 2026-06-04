@@ -17,4 +17,7 @@ public interface NotificationRepository extends JpaRepository<Notification,Long>
             Long userId,
             NotificationChannel channel
     );
+    long countByStatus(NotificationStatus status);
+
+    long countByChannelAndReadAtIsNull(NotificationChannel channel);
 }

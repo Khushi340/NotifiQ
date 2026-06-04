@@ -2,6 +2,7 @@ package com.khush.notifiq.notification;
 
 import com.khush.notifiq.notification.dto.NotificationRequest;
 import com.khush.notifiq.notification.dto.NotificationResponse;
+import com.khush.notifiq.notification.dto.NotificationStatsResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -38,4 +39,8 @@ public class NotificationController {
         return ResponseEntity.ok(notificationService.getUnreadNotifications(userId));
     }
 
+    @GetMapping("/stats")
+    public ResponseEntity<NotificationStatsResponse> getNotificationStats() {
+        return ResponseEntity.ok(notificationService.getNotificationStats());
+    }
 }
