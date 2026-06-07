@@ -114,7 +114,7 @@ public class NotificationService {
 
     public List<NotificationResponse> getUnreadNotifications(Long userId){
         userRepository.findById(userId)
-                .orElseThrow(()-> new ResourceNotFoundException("User not founnd with id "+ userId));
+                .orElseThrow(()-> new ResourceNotFoundException("User not found with id "+ userId));
         return notificationRepository
                 .findByUserIdAndChannelAndReadAtIsNull(userId,NotificationChannel.IN_APP)
                 .stream()
@@ -127,7 +127,10 @@ public class NotificationService {
                 .totalNotifications(notificationRepository.count())
                 .sentNotifications(notificationRepository.countByStatus(NotificationStatus.SENT))
                 .queuedNotifications(notificationRepository.countByStatus(NotificationStatus.QUEUED))
+                .retryingNotifications(notificationRepository.countByStatus(NotificationStatus.RETRYING))
                 .failedNotifications(notificationRepository.countByStatus(NotificationStatus.FAILED))
+                .deadLetteredNotifications(notificationRepository.countByStatus(NotificationStatus.DEAD_LETTERED))
+                .skippedByPreferenceNotifications(notificationRepository.countByStatus(NotificationStatus.SKIPPED_BY_PREFERENCE))
                 .unreadInAppNotifications(
                         notificationRepository.countByChannelAndReadAtIsNull(NotificationChannel.IN_APP)
                 )

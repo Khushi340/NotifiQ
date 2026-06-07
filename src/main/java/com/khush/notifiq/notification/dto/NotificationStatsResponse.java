@@ -12,7 +12,13 @@ public class NotificationStatsResponse {
 
     private long queuedNotifications;
 
+    private long retryingNotifications;
+
     private long failedNotifications;
+
+    private long deadLetteredNotifications;
+
+    private long skippedByPreferenceNotifications;
 
     private long unreadInAppNotifications;
 }
