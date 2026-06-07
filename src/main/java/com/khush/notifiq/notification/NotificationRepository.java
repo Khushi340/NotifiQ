@@ -9,8 +9,8 @@ import java.util.Optional;
 public interface NotificationRepository extends JpaRepository<Notification,Long> {
     List<Notification> findByUserId(Long userId);
     Optional<Notification> findByIdempotencyKey(String idempotencyKey);
-    List<Notification> findByStatusAndNextRetryAtLessThanEqual(
-            NotificationStatus status,
+    List<Notification> findByStatusInAndNextRetryAtLessThanEqual(
+            List<NotificationStatus> statuses,
             LocalDateTime nextRetryAt
     );
     List<Notification> findByUserIdAndChannelAndReadAtIsNull(

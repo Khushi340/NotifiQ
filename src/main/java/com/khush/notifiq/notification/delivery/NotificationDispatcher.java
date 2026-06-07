@@ -4,7 +4,9 @@ import com.khush.notifiq.notification.Notification;
 import com.khush.notifiq.notification.NotificationChannel;
 import com.khush.notifiq.notification.NotificationRepository;
 import com.khush.notifiq.notification.NotificationStatus;
+import com.khush.notifiq.notification.deadletter.DeadLetterService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -15,18 +17,20 @@ public class NotificationDispatcher {
 
     private final EmailNotificationSender emailNotificationSender;
     private final NotificationRepository notificationRepository;
+    private final DeadLetterService deadLetterService;
+    private static final int MAX_RETRY_ATTEMPTS = 3;
 
-    public Notification dispatch(Notification notification) {
+    @Async("notificationTaskExecutor")
+    public void dispatch(Notification notification) {
+
         if (notification.getChannel() == NotificationChannel.EMAIL) {
-            return sendEmail(notification);
+            sendEmail(notification);
+        } else if (notification.getChannel() == NotificationChannel.IN_APP) {
+            sendInApp(notification);
         }
-        if (notification.getChannel() == NotificationChannel.IN_APP) {
-            return sendInApp(notification);
-        }
-        return notification;
     }
 
-    private Notification sendEmail(Notification notification) {
+    private void sendEmail(Notification notification) {
         try {
             String subject = notification.getSubject() != null
                     ? notification.getSubject()
@@ -44,19 +48,35 @@ public class NotificationDispatcher {
             notification.setNextRetryAt(null);
 
         } catch (Exception ex) {
-            notification.setStatus(NotificationStatus.FAILED);
-            notification.setLastError(ex.getMessage());
+            handleFailure(notification, ex);
         }
 
-        return notificationRepository.save(notification);
+        notificationRepository.save(notification);
     }
 
-    private Notification sendInApp(Notification notification) {
+    private void sendInApp(Notification notification) {
         notification.setStatus(NotificationStatus.SENT);
         notification.setSentAt(LocalDateTime.now());
         notification.setLastError(null);
         notification.setNextRetryAt(null);
 
-        return notificationRepository.save(notification);
+        notificationRepository.save(notification);
+    }
+
+    private void handleFailure(Notification notification, Exception ex) {
+        int nextRetryCount = notification.getRetryCount() + 1;
+
+        notification.setRetryCount(nextRetryCount);
+        notification.setLastError(ex.getMessage());
+
+        if (nextRetryCount > MAX_RETRY_ATTEMPTS) {
+            notification.setStatus(NotificationStatus.DEAD_LETTERED);
+            notification.setNextRetryAt(null);
+
+            deadLetterService.createDeadLetter(notification, ex.getMessage());
+        } else {
+            notification.setStatus(NotificationStatus.RETRYING);
+            notification.setNextRetryAt(LocalDateTime.now().plusMinutes(nextRetryCount));
+        }
     }
 }

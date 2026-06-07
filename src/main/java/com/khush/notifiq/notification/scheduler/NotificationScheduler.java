@@ -20,12 +20,19 @@ public class NotificationScheduler {
 
     @Scheduled(fixedDelay = 60000)
     public void processQueuedNotifications() {
-        List<Notification> notifications = notificationRepository
-                .findByStatusAndNextRetryAtLessThanEqual(
+        List<Notification> notifications = notificationRepository.findByStatusInAndNextRetryAtLessThanEqual(
+                List.of(
                         NotificationStatus.QUEUED,
-                        LocalDateTime.now()
-                );
+                        NotificationStatus.RETRYING
+                ),
+                LocalDateTime.now()
+        );
 
-        notifications.forEach(notificationDispatcher::dispatch);
+        for (Notification notification : notifications) {
+            notification.setNextRetryAt(null);
+            notificationRepository.save(notification);
+
+            notificationDispatcher.dispatch(notification);
+        }
     }
 }

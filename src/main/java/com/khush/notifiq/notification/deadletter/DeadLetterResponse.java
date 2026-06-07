@@ -1,4 +1,4 @@
-package com.khush.notifiq.notification.dto;
+package com.khush.notifiq.notification.deadletter;
 
 import com.khush.notifiq.notification.NotificationChannel;
 import com.khush.notifiq.notification.NotificationPriority;
@@ -11,19 +11,20 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class NotificationResponse {
+public class DeadLetterResponse {
+
     private Long id;
+    private Long notificationId;
     private Long userId;
+
     private NotificationType type;
     private NotificationChannel channel;
     private NotificationPriority priority;
-    private NotificationStatus status;
+
     private String subject;
     private String message;
-    private String idempotencyKey;
+    private String reason;
+
     private int retryCount;
-    private LocalDateTime createdAt;
-    private LocalDateTime sentAt;
-    private LocalDateTime readAt;
-    private LocalDateTime nextRetryAt;
+    private LocalDateTime failedAt;
 }

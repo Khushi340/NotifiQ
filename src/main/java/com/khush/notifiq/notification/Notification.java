@@ -42,6 +42,7 @@ public class Notification {
     @Column(nullable = false, unique = true)
     private String idempotencyKey;
 
+    @Column(nullable = false)
     private int retryCount;
 
     private LocalDateTime nextRetryAt;

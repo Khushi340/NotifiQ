@@ -80,7 +80,7 @@ public class NotificationService {
         Notification savedNotification = notificationRepository.save(notification);
 
         if (shouldDeliverNow && savedNotification.getStatus() == NotificationStatus.QUEUED) {
-            savedNotification = notificationDispatcher.dispatch(savedNotification);
+            notificationDispatcher.dispatch(savedNotification);
         }
 
         return mapToResponse(savedNotification);
@@ -145,6 +145,7 @@ public class NotificationService {
                 .subject(notification.getSubject())
                 .message(notification.getMessage())
                 .idempotencyKey(notification.getIdempotencyKey())
+                .retryCount(notification.getRetryCount())
                 .createdAt(notification.getCreatedAt())
                 .sentAt(notification.getSentAt())
                 .nextRetryAt(notification.getNextRetryAt())
