@@ -6,10 +6,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/users/{userId}/preferences")
 @RequiredArgsConstructor
+@Tag(name = "Preferences", description = "User preference APIs")
 public class UserPreferenceController {
     private final UserPreferenceService preferenceService;
 

@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: notifiq-postgres
+    environment:
+      POSTGRES_DB: notifiq_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Khushi@340
+    ports:
+      - "5433:5432"
+    volumes:
+      - notifiq_postgres_data:/var/lib/postgresql/data
+
+  notifiq-app:
+    image: notifiq-backend
+    container_name: notifiq-app
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/notifiq_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: Khushi@340
+
+volumes:
+  notifiq_postgres_data:
