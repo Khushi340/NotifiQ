@@ -31,6 +31,7 @@ public class UserPreferenceService {
         preference.setEmailEnabled(request.isEmailEnabled());
         preference.setInAppEnabled(request.isInAppEnabled());
         preference.setWebhookEnabled(request.isWebhookEnabled());
+        preference.setWebhookUrl(request.getWebhookUrl());
         preference.setQuietHoursEnabled(request.isQuietHoursEnabled());
         preference.setQuietHoursStart(request.getQuietHoursStart());
         preference.setQuietHoursEnd(request.getQuietHoursEnd());
@@ -47,6 +48,7 @@ public class UserPreferenceService {
                 .emailEnabled(preference.isEmailEnabled())
                 .inAppEnabled(preference.isInAppEnabled())
                 .webhookEnabled(preference.isWebhookEnabled())
+                .webhookUrl(preference.getWebhookUrl())
                 .quietHoursEnabled(preference.isQuietHoursEnabled())
                 .quietHoursStart(preference.getQuietHoursStart())
                 .quietHoursEnd(preference.getQuietHoursEnd())

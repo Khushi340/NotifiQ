@@ -26,6 +26,7 @@ public class UserPreference {
     private boolean emailEnabled;
     private boolean inAppEnabled;
     private boolean webhookEnabled;
+    private String webhookUrl;
     private boolean quietHoursEnabled;
     private LocalTime quietHoursStart;
     private LocalTime quietHoursEnd;
