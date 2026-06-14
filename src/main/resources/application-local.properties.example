@@ -1,6 +1,22 @@
+spring.application.name=notifiq
+
+server.port=8080
+
 spring.datasource.url=jdbc:postgresql://localhost:5432/notifiq_db
-spring.datasource.username=your_username
-spring.datasource.password=your_password
+spring.datasource.username=your_postgres_username
+spring.datasource.password=your_postgres_password
+spring.datasource.driver-class-name=org.postgresql.Driver
 
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+spring.mail.host=sandbox.smtp.mailtrap.io
+spring.mail.port=2525
+spring.mail.username=your_mailtrap_username
+spring.mail.password=your_mailtrap_password
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+spring.mail.from=no-reply@notifiq.local
+
+spring.jackson.serialization.write-dates-as-timestamps=false
