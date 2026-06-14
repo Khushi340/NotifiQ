@@ -20,4 +20,6 @@ public interface NotificationRepository extends JpaRepository<Notification,Long>
     long countByStatus(NotificationStatus status);
 
     long countByChannelAndReadAtIsNull(NotificationChannel channel);
+
+    List<Notification> findTop10ByOrderByCreatedAtDesc();
 }

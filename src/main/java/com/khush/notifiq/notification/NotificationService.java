@@ -137,6 +137,14 @@ public class NotificationService {
                 .build();
     }
 
+    public List<NotificationResponse> getRecentNotifications() {
+        return notificationRepository
+                .findTop10ByOrderByCreatedAtDesc()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
     private NotificationResponse mapToResponse(Notification notification){
         return NotificationResponse.builder()
                 .id(notification.getId())

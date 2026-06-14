@@ -54,4 +54,9 @@ public class NotificationController {
     public ResponseEntity<NotificationStatsResponse> getNotificationStats() {
         return ResponseEntity.ok(notificationService.getNotificationStats());
     }
+
+    @GetMapping("/recent")
+    public ResponseEntity<List<NotificationResponse>> getRecentNotifications() {
+        return ResponseEntity.ok(notificationService.getRecentNotifications());
+    }
 }
