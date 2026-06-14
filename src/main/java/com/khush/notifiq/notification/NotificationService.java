@@ -89,7 +89,7 @@ public class NotificationService {
     public List<NotificationResponse> getNotificationsByUserId(Long userId){
         userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + userId));
-        return notificationRepository.findByUserId(userId)
+        return notificationRepository.findByUserIdOrderByCreatedAt(userId)
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
